@@ -1,3 +1,34 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "headphones",
+      "description": "Wireless over-ear headphones with noise cancellation.",
+      "imageUrl": "https://images.unsplash.com/photo-1572119244337-bcb4aae995af?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxoZWFkcGhvbmVzJTIwYXVkaW98ZW58MHx8fHwxNzYzOTE5Mjc1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "headphones audio"
+    },
+    {
+      "id": "smartwatch",
+      "description": "A sleek smartwatch with fitness tracking and notifications.",
+      "imageUrl": "https://images.unsplash.com/photo-1664219625223-20c7da833899?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxzbWFydHdhdGNoJTIwdGVjaHxlbnwwfHx8fDE3NjM5MDM0MTh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "smartwatch tech"
+    },
+    {
+      "id": "coffee-maker",
+      "description": "Drip coffee maker with a 12-cup capacity and programmable timer.",
+      "imageUrl": "https://images.unsplash.com/photo-1762944755785-243701e8f114?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjb2ZmZWUlMjBraXRjaGVufGVufDB8fHx8MTc2Mzk2NjAyOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "coffee kitchen"
+    },
+    {
+      "id": "keyboard",
+      "description": "Mechanical keyboard with RGB backlighting.",
+      "imageUrl": "https://images.unsplash.com/photo-1624526807819-0468c1c361df?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxrZXlib2FyZCUyMHRlY2h8ZW58MHx8fHwxNzYzOTI2ODI2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "keyboard tech"
+    },
+    {
+      "id": "backpack",
+      "description": "Durable and stylish backpack for daily commute and travel.",
+      "imageUrl": "https://images.unsplash.com/photo-1673505705676-1cdb1db2273f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxiYWNrcGFjayUyMHRyYXZlbHxlbnwwfHx8fDE3NjM5NDg5ODZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "backpack travel"
+    }
+  ]
 }
