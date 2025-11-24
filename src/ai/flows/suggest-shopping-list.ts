@@ -23,8 +23,8 @@ export type SuggestShoppingListInput = z.infer<typeof SuggestShoppingListInputSc
 const ShoppingItemSchema = z.object({
   itemName: z.string().describe('The name of the suggested shopping item.'),
   category: z.string().describe('The category the item belongs to (e.g., "Kitchen Ware", "Electronics", "Food Stuffs").'),
-  estimatedPrice: z.string().describe('The estimated price of the item in Ugandan Shillings (UGX).'),
-  suggestedMarket: z.string().describe('The cheapest and most affordable market or area in Kampala to buy this item.'),
+  estimatedPrice: z.string().describe('The estimated price of the item in Ugandan Shillings (UGX). It should be a string like "UGX 50,000".'),
+  suggestedMarket: z.string().describe('The cheapest and most affordable market or area in Kampala (e.g., Kikuubo, Nakasero) or an accessible international online store to buy this item.'),
 });
 
 const SuggestShoppingListOutputSchema = z.object({
@@ -47,7 +47,7 @@ const shoppingListPrompt = ai.definePrompt({
 
 A user has given you the following shopping prompt: "{{{prompt}}}"
 
-Based on this, generate a list of specific items they might need. For each item, provide its category, an estimated price in UGX, and recommend the best market or area in Kampala (e.g., Kikuubo, Nakasero Market, Owino Market, Game Store) known for offering the cheapest prices for that item.
+Based on this, generate a list of specific items they might need. For each item, provide its category, an estimated price in UGX, and recommend the best market or area in Kampala (e.g., Kikuubo, Nakasero Market, Owino Market) known for offering the cheapest prices for that item. Also consider accessible international online stores where appropriate. The estimated price must be a string formatted like "UGX 50,000".
 `,
 });
 
