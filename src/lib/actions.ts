@@ -11,8 +11,9 @@ import {
   type GenerateUpsellSuggestionsOutput,
 } from '@/ai/flows/generate-upsell-suggestions';
 import { manageAiNegotiationPreferences } from '@/ai/flows/manage-ai-negotiation-preferences';
-import { ProductURLSchema, PreferencesSchema } from './schemas';
+import { ProductURLSchema, PreferencesSchema, ProductResearchSchema } from './schemas';
 import { suggestShoppingList } from '@/ai/flows/suggest-shopping-list';
+import { researchProductPrices, type ResearchProductPricesOutput } from '@/ai/flows/research-product-prices';
 
 export type NegotiationResult = {
   negotiation: NegotiateProductPriceOutput;
@@ -64,6 +65,24 @@ export async function updatePreferencesAction(
     return { success: false, message: 'Failed to update preferences.' };
   }
 }
+
+export async function researchProductAction(
+  values: z.infer<typeof ProductResearchSchema>
+): Promise<ResearchProductPricesOutput> {
+  const validatedFields = ProductResearchSchema.safeParse(values);
+  if (!validatedFields.success) {
+    throw new Error('Invalid input for product research.');
+  }
+
+  try {
+    const result = await researchProductPrices(validatedFields.data);
+    return result;
+  } catch (error) {
+    console.error('Error during product research action:', error);
+    throw new Error('Failed to complete product research.');
+  }
+}
+
 
 const ShoppingPromptSchema = z.object({
   prompt: z.string().min(1, 'Prompt cannot be empty.'),

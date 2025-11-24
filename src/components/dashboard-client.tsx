@@ -13,6 +13,8 @@ import {
   Tag,
   Rocket,
   PlusCircle,
+  Search,
+  Link,
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -35,12 +37,14 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import { ProductURLSchema } from '@/lib/schemas';
-import { startNegotiationAction, type NegotiationResult } from '@/lib/actions';
+import { ProductURLSchema, ProductResearchSchema } from '@/lib/schemas';
+import { startNegotiationAction, researchProductAction, type NegotiationResult } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
+import type { ResearchProductPricesOutput } from '@/ai/flows/research-product-prices';
 
 type Negotiation = {
   id: string;
@@ -57,6 +61,14 @@ type Negotiation = {
   };
 };
 
+type ResearchResult = {
+  id: string;
+  prompt: string;
+  status: 'pending' | 'success' | 'error';
+  result?: ResearchProductPricesOutput;
+  error?: string;
+}
+
 function parsePrice(priceString: string | undefined): { amount: number; currency: string } {
   if (!priceString) return { amount: 0, currency: 'UGX' };
   const currency = priceString.match(/[A-Z]{3}/)?.[0] || 'UGX';
@@ -67,22 +79,51 @@ function parsePrice(priceString: string | undefined): { amount: number; currency
 export default function DashboardClient() {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
+  const [activeTab, setActiveTab] = useState('research');
+
+  // State for negotiations
   const [negotiations, setNegotiations] = useState<Negotiation[]>([]);
+  
+  // State for product research
+  const [researches, setResearches] = useState<ResearchResult[]>([]);
+
   const [isClient, setIsClient] = useState(false);
   useEffect(() => setIsClient(true), []);
 
-
-  const form = useForm<z.infer<typeof ProductURLSchema>>({
-    resolver: zodResolver(ProductURLSchema),
-    defaultValues: {
-      productLink: '',
-    },
+  const researchForm = useForm<z.infer<typeof ProductResearchSchema>>({
+    resolver: zodResolver(ProductResearchSchema),
+    defaultValues: { productDescription: '' },
   });
 
-  function onSubmit(values: z.infer<typeof ProductURLSchema>) {
+  const urlForm = useForm<z.infer<typeof ProductURLSchema>>({
+    resolver: zodResolver(ProductURLSchema),
+    defaultValues: { productLink: '' },
+  });
+
+  function onResearchSubmit(values: z.infer<typeof ProductResearchSchema>) {
+    const researchId = crypto.randomUUID();
+    setResearches(prev => [{ id: researchId, prompt: values.productDescription, status: 'pending' }, ...prev]);
+    researchForm.reset();
+
+    startTransition(async () => {
+      try {
+        const result = await researchProductAction(values);
+        setResearches(prev => prev.map(r => r.id === researchId ? { ...r, status: 'success', result } : r));
+      } catch (e) {
+        const error = e instanceof Error ? e.message : 'An unknown error occurred';
+        setResearches(prev => prev.map(r => r.id === researchId ? { ...r, status: 'error', error } : r));
+        toast({
+          variant: 'destructive',
+          title: 'Research Failed',
+          description: error,
+        });
+      }
+    });
+  }
+
+  function onUrlSubmit(values: z.infer<typeof ProductURLSchema>) {
     const negotiationId = crypto.randomUUID();
-    const randomImageIndex = Math.floor(Math.random() * PlaceHolderImages.length);
-    const randomImage = PlaceHolderImages[randomImageIndex];
+    const randomImage = PlaceHolderImages[Math.floor(Math.random() * PlaceHolderImages.length)];
 
     setNegotiations((prev) => [
       {
@@ -94,15 +135,14 @@ export default function DashboardClient() {
       ...prev,
     ]);
 
-    form.reset();
+    urlForm.reset();
 
     startTransition(async () => {
       try {
         const result = await startNegotiationAction(values);
         
-        // Simulate original price being higher
         const { amount: negotiatedPrice, currency } = parsePrice(result.negotiation.negotiatedPrice);
-        const originalPrice = negotiatedPrice > 0 ? negotiatedPrice * (1 + (Math.random() * 0.3 + 0.1)) : 0; // 10-40% higher
+        const originalPrice = negotiatedPrice > 0 ? negotiatedPrice * (1 + (Math.random() * 0.3 + 0.1)) : 0;
         const savings = originalPrice - negotiatedPrice;
 
         setNegotiations((prev) =>
@@ -148,49 +188,149 @@ export default function DashboardClient() {
         <CardHeader>
           <CardTitle className="font-headline flex items-center gap-2">
             <Bot className="text-primary" />
-            Start New Negotiation
+            AI Shopping Assistant
           </CardTitle>
           <CardDescription>
-            Enter a product link and let our AI assistant negotiate the best
-            price for you.
+            Let our AI assistant find the best products and prices for you, or bargain on a specific item.
           </CardDescription>
         </CardHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <CardContent>
-              <FormField
-                control={form.control}
-                name="productLink"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        placeholder="https://example.com/product/..."
-                        {...field}
-                        disabled={isPending}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-            <CardFooter>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? (
-                  <LoaderCircle className="animate-spin" />
-                ) : (
-                  <Sparkles />
-                )}
-                Bargain Now
-                {!isPending && <ArrowRight />}
-              </Button>
-            </CardFooter>
-          </form>
-        </Form>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="research"><Search className='mr-2'/>Research a Product</TabsTrigger>
+            <TabsTrigger value="bargain"><Link className='mr-2'/>Bargain with Link</TabsTrigger>
+          </TabsList>
+          <TabsContent value="research">
+             <Form {...researchForm}>
+              <form onSubmit={researchForm.handleSubmit(onResearchSubmit)}>
+                <CardContent className="pt-6">
+                  <FormField
+                    control={researchForm.control}
+                    name="productDescription"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., 'Find me a good 24 inch TV'"
+                            {...field}
+                            disabled={isPending}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+                <CardFooter>
+                  <Button type="submit" disabled={isPending}>
+                    {isPending ? <LoaderCircle className="animate-spin" /> : <Sparkles />}
+                    Research Now
+                    {!isPending && <ArrowRight />}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Form>
+          </TabsContent>
+          <TabsContent value="bargain">
+            <Form {...urlForm}>
+              <form onSubmit={urlForm.handleSubmit(onUrlSubmit)}>
+                <CardContent className="pt-6">
+                  <FormField
+                    control={urlForm.control}
+                    name="productLink"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            placeholder="https://example.com/product/..."
+                            {...field}
+                            disabled={isPending}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+                <CardFooter>
+                  <Button type="submit" disabled={isPending}>
+                    {isPending ? <LoaderCircle className="animate-spin" /> : <Tag />}
+                    Bargain Now
+                    {!isPending && <ArrowRight />}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Form>
+          </TabsContent>
+        </Tabs>
       </Card>
+      
+      {activeTab === 'research' && researches.length > 0 && (
+        <div className="space-y-4">
+           <h2 className="font-headline text-2xl font-bold">Research History</h2>
+           {researches.map(item => (
+              <Card key={item.id}>
+                <CardHeader>
+                  <CardTitle className='font-normal'>Research for: <span className='font-bold'>"{item.prompt}"</span></CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {item.status === 'pending' && (
+                    <div className="flex items-center justify-center gap-2 text-muted-foreground py-8">
+                      <LoaderCircle className="animate-spin text-primary" />
+                      <span className="font-medium">AI is researching products...</span>
+                    </div>
+                  )}
+                  {item.status === 'error' && (
+                     <div className="space-y-2 text-center py-8">
+                       <Badge variant="destructive">Research Failed</Badge>
+                       <p className="text-sm text-destructive">{item.error}</p>
+                    </div>
+                  )}
+                  {item.status === 'success' && item.result && (
+                    <div className='space-y-4'>
+                      {item.result.products.map((product, index) => {
+                        const randomImage = PlaceHolderImages[Math.floor(Math.random() * PlaceHolderImages.length)];
+                        return (
+                           <Card key={index} className='flex flex-col sm:flex-row gap-4 p-4'>
+                              <div className="relative aspect-square w-full sm:w-32 overflow-hidden rounded-md flex-shrink-0">
+                                <Image
+                                    src={randomImage.imageUrl}
+                                    alt={product.productName}
+                                    fill
+                                    className="object-cover"
+                                    data-ai-hint={randomImage.imageHint}
+                                  />
+                              </div>
+                              <div className="flex-grow space-y-2">
+                                <h3 className='font-bold font-headline text-lg'>{product.productName}</h3>
+                                <p className='text-sm text-muted-foreground'>{product.description}</p>
+                                <div className='flex flex-wrap gap-2 items-center'>
+                                  <Badge variant='secondary'>Store: {product.store}</Badge>
+                                  <Badge>Price: {product.price}</Badge>
+                                </div>
+                              </div>
+                              <div className='flex-shrink-0 flex sm:flex-col justify-end items-end gap-2'>
+                                <Button size='sm' variant='outline'>
+                                  <Tag className='mr-1 h-3 w-3'/>
+                                  Bargain
+                                </Button>
+                                 <Button size='sm'>
+                                  <ShoppingBag className='mr-1 h-3 w-3'/>
+                                  Buy Now
+                                </Button>
+                              </div>
+                           </Card>
+                        )
+                      })}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+           ))}
+        </div>
+      )}
 
-      {negotiations.length > 0 && (
+
+      {activeTab === 'bargain' && negotiations.length > 0 && (
         <div className="space-y-4">
           <h2 className="font-headline text-2xl font-bold">
             Negotiation History
@@ -296,5 +436,3 @@ export default function DashboardClient() {
     </div>
   );
 }
-
-    
