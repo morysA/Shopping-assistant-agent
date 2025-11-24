@@ -4,10 +4,9 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import {
   CheckCircle,
-  Circle,
+  Bike,
   LoaderCircle,
   MapPin,
-  Motorcycle,
   Phone,
   ShoppingBasket,
   Store,
@@ -26,7 +25,7 @@ const trackingSteps = [
   },
   {
     name: 'Rider Assigned',
-    icon: Motorcycle,
+    icon: Bike,
     description: 'A rider is on their way to the market.',
   },
   {
