@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { z } from 'zod';
@@ -10,6 +10,9 @@ import {
   LoaderCircle,
   Sparkles,
   ShoppingBag,
+  Tag,
+  Rocket,
+  PlusCircle,
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -37,6 +40,7 @@ import { ProductURLSchema } from '@/lib/schemas';
 import { startNegotiationAction, type NegotiationResult } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { cn } from '@/lib/utils';
 
 type Negotiation = {
   id: string;
@@ -45,12 +49,28 @@ type Negotiation = {
   result?: NegotiationResult;
   error?: string;
   placeholderImage: (typeof PlaceHolderImages)[0];
+  displayData?: {
+    originalPrice: number;
+    negotiatedPrice: number;
+    savings: number;
+    currency: string;
+  };
 };
+
+function parsePrice(priceString: string | undefined): { amount: number; currency: string } {
+  if (!priceString) return { amount: 0, currency: 'UGX' };
+  const currency = priceString.match(/[A-Z]{3}/)?.[0] || 'UGX';
+  const amount = parseInt(priceString.replace(/[^0-9]/g, ''), 10) || 0;
+  return { amount, currency };
+}
 
 export default function DashboardClient() {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [negotiations, setNegotiations] = useState<Negotiation[]>([]);
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => setIsClient(true), []);
+
 
   const form = useForm<z.infer<typeof ProductURLSchema>>({
     resolver: zodResolver(ProductURLSchema),
@@ -61,8 +81,8 @@ export default function DashboardClient() {
 
   function onSubmit(values: z.infer<typeof ProductURLSchema>) {
     const negotiationId = crypto.randomUUID();
-    const randomImage =
-      PlaceHolderImages[Math.floor(Math.random() * PlaceHolderImages.length)];
+    const randomImageIndex = Math.floor(Math.random() * PlaceHolderImages.length);
+    const randomImage = PlaceHolderImages[randomImageIndex];
 
     setNegotiations((prev) => [
       {
@@ -79,10 +99,26 @@ export default function DashboardClient() {
     startTransition(async () => {
       try {
         const result = await startNegotiationAction(values);
+        
+        // Simulate original price being higher
+        const { amount: negotiatedPrice, currency } = parsePrice(result.negotiation.negotiatedPrice);
+        const originalPrice = negotiatedPrice > 0 ? negotiatedPrice * (1 + (Math.random() * 0.3 + 0.1)) : 0; // 10-40% higher
+        const savings = originalPrice - negotiatedPrice;
+
         setNegotiations((prev) =>
           prev.map((n) =>
             n.id === negotiationId
-              ? { ...n, status: 'success', result }
+              ? { 
+                  ...n, 
+                  status: 'success', 
+                  result,
+                  displayData: {
+                    originalPrice: Math.round(originalPrice),
+                    negotiatedPrice,
+                    savings: Math.round(savings),
+                    currency,
+                  }
+                }
               : n
           )
         );
@@ -100,6 +136,10 @@ export default function DashboardClient() {
         });
       }
     });
+  }
+
+  if (!isClient) {
+    return null;
   }
 
   return (
@@ -155,14 +195,14 @@ export default function DashboardClient() {
           <h2 className="font-headline text-2xl font-bold">
             Negotiation History
           </h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
             {negotiations.map((item) => (
               <Card
                 key={item.id}
                 className="flex flex-col"
               >
-                <CardHeader>
-                  <div className="relative aspect-video w-full overflow-hidden rounded-md">
+                <CardHeader className="flex-row gap-4 items-start space-y-0">
+                  <div className="relative aspect-square w-24 overflow-hidden rounded-md flex-shrink-0">
                      <Image
                         src={item.placeholderImage.imageUrl}
                         alt={item.placeholderImage.description}
@@ -171,69 +211,83 @@ export default function DashboardClient() {
                         data-ai-hint={item.placeholderImage.imageHint}
                       />
                   </div>
-                </CardHeader>
-                <CardContent className="flex-grow space-y-4">
-                  <div className="space-y-1">
-                    <CardTitle className="text-lg font-headline">
+                   <div className="space-y-1 flex-grow">
+                    <CardTitle className="text-lg font-headline leading-tight">
                       {item.placeholderImage.description}
                     </CardTitle>
                     <CardDescription className="truncate text-xs">
                       {item.productLink}
                     </CardDescription>
                   </div>
+                </CardHeader>
+                <CardContent className="flex-grow space-y-4">
+                  
                   {item.status === 'pending' && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <LoaderCircle className="animate-spin" />
-                      <span>Negotiating...</span>
+                    <div className="flex items-center justify-center gap-2 text-muted-foreground py-8">
+                      <LoaderCircle className="animate-spin text-primary" />
+                      <span className="font-medium">AI is negotiating for you...</span>
                     </div>
                   )}
-                  {item.status === 'success' && item.result && (
+                  {item.status === 'success' && item.result && item.displayData && (
                     <>
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-baseline">
-                          <span className="text-sm text-muted-foreground">Status</span>
-                           <Badge variant="secondary" className="bg-green-500/20 text-green-300 border-green-500/30">
-                            {item.result.negotiation.negotiationStatus}
-                           </Badge>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center text-muted-foreground text-sm">
+                            <span>Original Price</span>
+                            <span className="line-through">
+                              {new Intl.NumberFormat('en-UG', { style: 'currency', currency: item.displayData.currency, minimumFractionDigits: 0 }).format(item.displayData.originalPrice)}
+                            </span>
                         </div>
-                        {item.result.negotiation.negotiatedPrice && (
-                           <div className="flex justify-between items-baseline">
-                             <span className="text-sm text-muted-foreground">Final Price</span>
-                             <span className="font-bold text-lg text-primary">
-                               {item.result.negotiation.negotiatedPrice}
-                             </span>
-                           </div>
-                        )}
-                        <p className="text-sm text-muted-foreground pt-2 border-t border-dashed">
+
+                        <div className="flex justify-between items-center text-primary font-bold text-lg">
+                            <span>Negotiated Price</span>
+                            <span>
+                               {new Intl.NumberFormat('en-UG', { style: 'currency', currency: item.displayData.currency, minimumFractionDigits: 0 }).format(item.displayData.negotiatedPrice)}
+                            </span>
+                        </div>
+
+                        <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-center">
+                            <p className="font-bold text-xl text-green-300">
+                              You Saved {new Intl.NumberFormat('en-UG', { style: 'currency', currency: item.displayData.currency, minimumFractionDigits: 0 }).format(item.displayData.savings)}!
+                            </p>
+                        </div>
+                         <p className="text-xs text-muted-foreground pt-2 border-t border-dashed">
                            {item.result.negotiation.summary}
                         </p>
                       </div>
                       <Separator />
-                       <div>
-                        <h3 className="font-headline text-md mb-2 flex items-center gap-2">
+                       <div className="space-y-3">
+                        <h3 className="font-headline text-md flex items-center gap-2">
                           <ShoppingBag className="h-4 w-4 text-primary"/>
-                          Upsell Suggestions
+                          Smart Upsell Suggestions
                           </h3>
                         <div className="flex flex-wrap gap-2">
                            {item.result.upsells.upsellSuggestions.map((suggestion, i) => (
-                              <Badge key={i} variant="outline">{suggestion}</Badge>
+                              <Button key={i} variant="outline" size="sm" className="h-auto py-1">
+                                <PlusCircle className="mr-1 h-3 w-3" />
+                                {suggestion}
+                              </Button>
                            ))}
                         </div>
                        </div>
                     </>
                   )}
                    {item.status === 'error' && (
-                    <div className="space-y-2">
-                        <div className="flex justify-between items-baseline">
-                          <span className="text-sm text-muted-foreground">Status</span>
-                           <Badge variant="destructive">
-                            Failed
-                           </Badge>
-                        </div>
-                        <p className="text-sm text-destructive">{item.error}</p>
+                    <div className="space-y-2 text-center py-8">
+                       <Badge variant="destructive">
+                        Negotiation Failed
+                       </Badge>
+                       <p className="text-sm text-destructive">{item.error}</p>
                     </div>
                    )}
                 </CardContent>
+                 {item.status === 'success' && (
+                  <CardFooter className="bg-card-foreground/5 border-t">
+                      <Button className="w-full">
+                        <Rocket />
+                        Proceed to Delivery
+                      </Button>
+                  </CardFooter>
+                 )}
               </Card>
             ))}
           </div>
@@ -242,3 +296,5 @@ export default function DashboardClient() {
     </div>
   );
 }
+
+    
