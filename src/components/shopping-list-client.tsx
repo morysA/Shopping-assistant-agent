@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -53,6 +54,7 @@ export default function ShoppingListClient() {
   const [isPending, startTransition] = useTransition();
   const [shoppingList, setShoppingList] =
     useState<SuggestShoppingListOutput | null>(null);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof ShoppingPromptSchema>>({
     resolver: zodResolver(ShoppingPromptSchema),
@@ -78,6 +80,21 @@ export default function ShoppingListClient() {
       }
     });
   }
+
+  const handleArrangeDelivery = () => {
+    if (shoppingList) {
+      // For now, we'll store the list in localStorage to pass it to the delivery page.
+      // A more robust solution might use a state management library or server-side state.
+      localStorage.setItem('shoppingList', JSON.stringify(shoppingList));
+      router.push('/delivery');
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'No Shopping List',
+        description: 'Please generate a shopping list first.',
+      });
+    }
+  };
 
   const totalCost = useMemo(() => {
     if (!shoppingList) return 0;
@@ -202,7 +219,7 @@ export default function ShoppingListClient() {
               Save List
             </Button>
             <Button
-              onClick={() => toast({ title: 'Coming Soon!', description: 'Delivery and payment features are under development.' })}
+              onClick={handleArrangeDelivery}
             >
               <Rocket />
               Arrange Delivery
