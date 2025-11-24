@@ -7,6 +7,7 @@ import {
   Bot,
   CircleUser,
   LayoutDashboard,
+  Map,
   Package,
   Settings,
   ShoppingBasket,
@@ -48,6 +49,11 @@ const menuItems = [
     icon: Package,
   },
   {
+    href: '/tracking/mock-order-123',
+    label: 'Track Order',
+    icon: Map,
+  },
+  {
     href: '/settings',
     label: 'Settings',
     icon: Settings,
@@ -71,7 +77,7 @@ export function AppSidebar() {
             <SidebarMenuItem key={item.label}>
               <Link href={item.href} legacyBehavior passHref>
                 <SidebarMenuButton
-                  isActive={pathname === item.href}
+                  isActive={pathname.startsWith(item.href) && (item.href !== '/' || pathname === '/')}
                   tooltip={{ children: item.label }}
                 >
                   <item.icon />

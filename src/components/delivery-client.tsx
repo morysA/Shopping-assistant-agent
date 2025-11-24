@@ -40,7 +40,6 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  TableFooter as UiTableFooter,
 } from '@/components/ui/table';
 import {
   Select,
@@ -73,7 +72,6 @@ export default function DeliveryClient() {
       if (storedList) {
         setShoppingList(JSON.parse(storedList));
       } else {
-        // If no list is found, redirect back to the shopping list page
         toast({
           variant: 'destructive',
           title: 'No items to deliver',
@@ -103,10 +101,9 @@ export default function DeliveryClient() {
       title: 'Order Placed!',
       description: 'Your delivery is being arranged. Track your rider soon!',
     });
-    // Here you would typically call an action to process the order
-    // and redirect to a tracking page.
+    const orderId = crypto.randomUUID();
     localStorage.removeItem('shoppingList');
-    router.push('/');
+    router.push(`/tracking/${orderId}`);
   };
 
   const totalCost = useMemo(() => {
