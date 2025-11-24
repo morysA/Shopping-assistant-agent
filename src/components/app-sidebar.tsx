@@ -5,12 +5,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Bot,
-  CircleUser,
   LayoutDashboard,
   Map,
   Package,
   Settings,
   ShoppingBasket,
+  TrendingUp,
 } from 'lucide-react';
 
 import {
@@ -42,6 +42,11 @@ const menuItems = [
     href: '/shopping-list',
     label: 'Shopping List',
     icon: ShoppingBasket,
+  },
+  {
+    href: '/recommended',
+    label: 'Recommended',
+    icon: TrendingUp,
   },
   {
     href: '/delivery',

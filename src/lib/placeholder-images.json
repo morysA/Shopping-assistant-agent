@@ -4,31 +4,64 @@
       "id": "headphones",
       "description": "Wireless over-ear headphones with noise cancellation.",
       "imageUrl": "https://images.unsplash.com/photo-1572119244337-bcb4aae995af?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxoZWFkcGhvbmVzJTIwYXVkaW98ZW58MHx8fHwxNzYzOTE5Mjc1fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "headphones audio"
+      "imageHint": "headphones audio",
+      "price": "UGX 250,000"
     },
     {
       "id": "smartwatch",
       "description": "A sleek smartwatch with fitness tracking and notifications.",
       "imageUrl": "https://images.unsplash.com/photo-1664219625223-20c7da833899?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxzbWFydHdhdGNoJTIwdGVjaHxlbnwwfHx8fDE3NjM5MDM0MTh8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "smartwatch tech"
+      "imageHint": "smartwatch tech",
+      "price": "UGX 350,000"
     },
     {
       "id": "coffee-maker",
       "description": "Drip coffee maker with a 12-cup capacity and programmable timer.",
       "imageUrl": "https://images.unsplash.com/photo-1762944755785-243701e8f114?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjb2ZmZWUlMjBraXRjaGVufGVufDB8fHx8MTc2Mzk2NjAyOXww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "coffee kitchen"
+      "imageHint": "coffee kitchen",
+      "price": "UGX 180,000"
     },
     {
       "id": "keyboard",
       "description": "Mechanical keyboard with RGB backlighting.",
       "imageUrl": "https://images.unsplash.com/photo-1624526807819-0468c1c361df?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxrZXlib2FyZCUyMHRlY2h8ZW58MHx8fHwxNzYzOTI2ODI2fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "keyboard tech"
+      "imageHint": "keyboard tech",
+      "price": "UGX 220,000"
     },
     {
       "id": "backpack",
       "description": "Durable and stylish backpack for daily commute and travel.",
       "imageUrl": "https://images.unsplash.com/photo-1673505705676-1cdb1db2273f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxiYWNrcGFjayUyMHRyYXZlbHxlbnwwfHx8fDE3NjM5NDg5ODZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "backpack travel"
+      "imageHint": "backpack travel",
+      "price": "UGX 150,000"
+    },
+    {
+      "id": "blender",
+      "description": "High-speed blender for smoothies and soups.",
+      "imageUrl": "https://images.unsplash.com/photo-1661451837931-d401b120d2f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxibGVuZGVyJTIwa2l0Y2hlbnxlbnwwfHx8fDE3NjM5Nzg2NTB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "blender kitchen",
+      "price": "UGX 190,000"
+    },
+    {
+      "id": "air-fryer",
+      "description": "5.5L Digital Air Fryer for healthy cooking.",
+      "imageUrl": "https://images.unsplash.com/photo-1695089028114-ce28248f0ab9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhaXItZnJ5ZXIlMjBraXRjaGVufGVufDB8fHx8MTc2NDAwNTUyMHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "air-fryer kitchen",
+      "price": "UGX 320,000"
+    },
+    {
+      "id": "rice-cooker",
+      "description": "1.8L Automatic Rice Cooker.",
+      "imageUrl": "https://images.unsplash.com/photo-1761766917170-42c4cecfee0b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxyaWNlLWNvb2tlciUyMGtpdGNoZW58ZW58MHx8fHwxNzY0MDA1NTIwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "rice-cooker kitchen",
+      "price": "UGX 120,000"
+    },
+    {
+      "id": "smartphone",
+      "description": "Latest model smartphone with dual camera.",
+      "imageUrl": "https://images.unsplash.com/photo-1676173646307-d050e097d181?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzbWFydHBob25lJTIwdGVjaHxlbnwwfHx8fDE3NjM5MjI0NTB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "smartphone tech",
+      "price": "UGX 950,000"
     }
   ]
 }
