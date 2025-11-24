@@ -12,6 +12,7 @@ import {
 } from '@/ai/flows/generate-upsell-suggestions';
 import { manageAiNegotiationPreferences } from '@/ai/flows/manage-ai-negotiation-preferences';
 import { ProductURLSchema, PreferencesSchema } from './schemas';
+import { suggestShoppingList } from '@/ai/flows/suggest-shopping-list';
 
 export type NegotiationResult = {
   negotiation: NegotiateProductPriceOutput;
@@ -61,5 +62,26 @@ export async function updatePreferencesAction(
   } catch (error) {
     console.error('Error updating preferences:', error);
     return { success: false, message: 'Failed to update preferences.' };
+  }
+}
+
+const ShoppingPromptSchema = z.object({
+  prompt: z.string().min(1, 'Prompt cannot be empty.'),
+});
+
+export async function getShoppingListAction(
+  values: z.infer<typeof ShoppingPromptSchema>
+) {
+  const validatedFields = ShoppingPromptSchema.safeParse(values);
+  if (!validatedFields.success) {
+    throw new Error('Invalid input.');
+  }
+
+  try {
+    const result = await suggestShoppingList(validatedFields.data);
+    return result;
+  } catch (error) {
+    console.error('Error getting shopping list:', error);
+    throw new Error('Failed to generate shopping list.');
   }
 }

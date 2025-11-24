@@ -8,6 +8,7 @@ import {
   CircleUser,
   LayoutDashboard,
   Settings,
+  ShoppingBasket,
 } from 'lucide-react';
 
 import {
@@ -34,6 +35,11 @@ const menuItems = [
     href: '/',
     label: 'Dashboard',
     icon: LayoutDashboard,
+  },
+  {
+    href: '/shopping-list',
+    label: 'Shopping List',
+    icon: ShoppingBasket,
   },
   {
     href: '/settings',
